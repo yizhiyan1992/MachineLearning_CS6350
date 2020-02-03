@@ -9,19 +9,45 @@ class Node:
         self.depth=depth
         self.split_attribute=attribute
         self.child=[]
+        self.leaf=False
+        self.prediction=None
 
 class DecisionTree:
     def __init__(self,train_matrix,test):
         self.root=None
-        self.max_depth=6
+        # adjust this parameter to set the depth of the tree (depth is 0-indexed)
+        self.max_depth=5
         self.train_matrix=train_matrix
         self.test=test
         self.train_sample_size=self.train_matrix.shape[0]
         self.train_feature_size=self.train_matrix.shape[1]
 
     def Train_model(self,gain_type):
-        self.recursion(self.train_matrix,self.root,1,gain_type)
+        self.recursion(self.train_matrix,self.root,0,gain_type)
         return
+
+    def Result_predict(self,samples):
+        res=[]
+        for index in range(samples.shape[0]):
+            sample=samples.loc[index,:]
+            res.append(self.Result_predict_each_sample(sample))
+        return res
+    def Result_predict_each_sample(self,sample):
+        node=self.root
+        while not node.leaf:
+            for child in node.child:
+                if sample[node.split_attribute]==child.name:
+                    node=child
+                    break
+        return node.prediction
+
+    def Prediction_accuracy(self,true_label,predict_label):
+        total=len(true_label)
+        count=0
+        for index in range(total):
+            if true_label[index]==predict_label[index]:
+                count+=1
+        return count/total
 
     def InformationGain(self,col_feature,col_label,gain_type):
         val_root=self.Gain([],col_label,gain_type)
@@ -29,7 +55,6 @@ class DecisionTree:
         info=val_root-val_child
         return info
 
-    # Including three types: 1) Entropy, 2) Majority Error and 3) Gini index
     def Gain(self,col_feature,col_label,gain):
         Dict = {}
         if len(col_feature)==0: # calculate the gain for father node
@@ -40,7 +65,6 @@ class DecisionTree:
                 Dict[col_feature[index]].append(col_label[index])
             for key,val in Dict.items():
                 Dict[key]=Counter(val)
-
         if gain=='Entropy':
             entro = []
             for Class in Dict.keys():
@@ -78,7 +102,6 @@ class DecisionTree:
                 entro.append(cur_val)
             return sum(entro)
 
-
     def recursion(self,cur_samples,node,depth,gain_type):
         name=[]
         information_gain=[]
@@ -90,13 +113,11 @@ class DecisionTree:
                 information_gain.append(round(val, 3))
         del_feature=name[information_gain.index(max(information_gain))]
         if not node:
-            self.root=Node('root',del_feature,1)
+            self.root=Node('root',del_feature,0)
             node=self.root
-
         else:
             node.split_attribute=del_feature
         node.depth=depth
-
         Classes=set(cur_samples[del_feature])
         for Class in Classes:
             next_node=Node(Class,None,depth+1)
@@ -109,9 +130,12 @@ class DecisionTree:
             2) No feature can be used
             3) all samples are pure
             '''
-            if len(set(next_cur_samples['label']))!=1 and not next_cur_samples.empty and depth+1<=self.max_depth:
+            if len(set(next_cur_samples['label']))!=1 and not next_cur_samples.empty and depth+1<self.max_depth:
                 self.recursion(next_cur_samples,next_node,depth+1,gain_type)
-
+            else:
+                # form into a leaf node, and output the prediction result by voting the most frequent element.
+                next_node.leaf=True
+                next_node.prediction=Counter(next_cur_samples['label']).most_common(1)[0][0]
         return
 
 '''main function'''
@@ -122,13 +146,12 @@ Train.columns=['buying','maint','doors','persons','lug_boot','safety','label']
 #Train.columns=['O','T','H','W','label']
 Test=[]
 print('total training size: ',Train.shape)
-
+print('label distribution from training set: ',Counter(Train['label']))
 Tree=DecisionTree(Train,Test)
 '''
 gain_type=['Entropy','Gini_Index','Majority_Error']
 '''
 Tree.Train_model(gain_type='Majority_Error')
-
 
 # print tree
 from collections import deque
@@ -138,7 +161,11 @@ while stack:
     print(level)
     for _ in range(len(stack)):
         node=stack.popleft()
-        print(node.split_attribute,node.name,node.depth)
+        print(node.split_attribute,node.name,node.depth,node.prediction,node.leaf)
         for child in node.child:
             stack.append(child)
     level+=1
+
+res=Tree.Result_predict(Train)
+print(Tree.Prediction_accuracy(Train['label'].values,res))
+print(res)

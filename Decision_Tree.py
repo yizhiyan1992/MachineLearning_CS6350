@@ -29,16 +29,22 @@ class DecisionTree:
     def Result_predict(self,samples):
         res=[]
         for index in range(samples.shape[0]):
+
             sample=samples.loc[index,:]
+            print(sample)
             res.append(self.Result_predict_each_sample(sample))
         return res
     def Result_predict_each_sample(self,sample):
         node=self.root
         while not node.leaf:
+            not_found=True
             for child in node.child:
                 if sample[node.split_attribute]==child.name:
+                    not_found=False
                     node=child
                     break
+            if not_found:
+                return node.prediction
         return node.prediction
 
     def Prediction_accuracy(self,true_label,predict_label):
@@ -130,28 +136,29 @@ class DecisionTree:
             2) No feature can be used
             3) all samples are pure
             '''
+            next_node.prediction = Counter(next_cur_samples['label']).most_common(1)[0][0]
             if len(set(next_cur_samples['label']))!=1 and not next_cur_samples.empty and depth+1<self.max_depth:
                 self.recursion(next_cur_samples,next_node,depth+1,gain_type)
             else:
                 # form into a leaf node, and output the prediction result by voting the most frequent element.
                 next_node.leaf=True
-                next_node.prediction=Counter(next_cur_samples['label']).most_common(1)[0][0]
         return
 
 '''main function'''
 Train=pd.read_csv(r'C:/Users/Zhiyan/Desktop/MLassignments/New folder/car/train.csv',header=None)
 Train.columns=['buying','maint','doors','persons','lug_boot','safety','label']
+Test=pd.read_csv(r'C:/Users/Zhiyan/Desktop/MLassignments/New folder/car/test.csv',header=None)
+Test.columns=['buying','maint','doors','persons','lug_boot','safety','label']
 #Train=pd.DataFrame([['s','s','o','r','r','r','o','s','s','r','s','o','o','r'],['H','H','H','M','C','C','C','M','C','M','M','M','H','M'],['H','H','H','H','N','N','N','H','N','N','N','H','N','H'],['W','S','W','W','W','S','S','W','W','W','S','S','W','S'],[0,0,1,1,1,0,1,0,1,1,1,1,1,0]])
 #Train=Train.T
 #Train.columns=['O','T','H','W','label']
-Test=[]
 print('total training size: ',Train.shape)
 print('label distribution from training set: ',Counter(Train['label']))
 Tree=DecisionTree(Train,Test)
 '''
 gain_type=['Entropy','Gini_Index','Majority_Error']
 '''
-Tree.Train_model(gain_type='Majority_Error')
+Tree.Train_model(gain_type='Gini_Index')
 
 # print tree
 from collections import deque
@@ -167,5 +174,6 @@ while stack:
     level+=1
 
 res=Tree.Result_predict(Train)
+res_test=Tree.Result_predict(Test)
 print(Tree.Prediction_accuracy(Train['label'].values,res))
-print(res)
+print(Tree.Prediction_accuracy(Test['label'].values,res_test))

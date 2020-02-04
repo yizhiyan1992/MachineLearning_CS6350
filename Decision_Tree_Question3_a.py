@@ -223,15 +223,17 @@ print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['la
 print('Prediction results on testing set: ',res_test,sep='\n')
 print('Prediction results on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test),sep='\n')
 
+'''
 # print tree nodes by BFS to check out
-#from collections import deque
-#stack=deque([Tree.root])
-#level=0
-#while stack:
-#    print(level)
-#    for _ in range(len(stack)):
-#        node=stack.popleft()
-#        print(node.split_attribute,node.name,node.depth,node.prediction,node.leaf)
-#        for child in node.child:
-#            stack.append(child)
-#    level+=1
+from collections import deque
+stack=deque([Tree.root])
+level=0
+while stack:
+    print(level)
+    for _ in range(len(stack)):
+        node=stack.popleft()
+        print(node.split_attribute,node.name,node.depth,node.prediction,node.leaf)
+        for child in node.child:
+            stack.append(child)
+    level+=1
+'''

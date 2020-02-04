@@ -2,6 +2,12 @@
 Question3-(a)
 Adjust tree depth ---> self.max_depth
 Adjust gain type---> Tree.Train_model(gain_type=['Entropy','Gini_Index','Majority_Error'])
+
+There are 4 outputs:
+1) Prediction results on Train set
+2) Prediction accuracy on Train set
+3) Prediction results on Test set
+4) Prediction accuracy on Test set
 '''
 import pandas as pd
 import math

@@ -149,17 +149,24 @@ class DecisionTree:
         return
 
 '''main function'''
+# Download dataset, assgin column names
 Train=pd.read_csv('/Users/zhiyan1992/Desktop/car/train.csv',header=None)
 Train.columns=['buying','maint','doors','persons','lug_boot','safety','label']
 Test=pd.read_csv('/Users/zhiyan1992/Desktop/car/test.csv',header=None)
 Test.columns=['buying','maint','doors','persons','lug_boot','safety','label']
 print('total training size: ',Train.shape)
 print('label distribution from training set: ',Counter(Train['label']))
+
+# Train DT model
 Tree=DecisionTree(Train,Test)
-'''
-gain_type=['Entropy','Gini_Index','Majority_Error']
-'''
+'''gain_type=['Entropy','Gini_Index','Majority_Error']'''
 Tree.Train_model(gain_type='Gini_Index')
+
+#print ptediction result
+res=Tree.Result_predict(Train)
+res_test=Tree.Result_predict(Test)
+print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
+print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))
 
 # print tree BFS
 #from collections import deque
@@ -173,8 +180,3 @@ Tree.Train_model(gain_type='Gini_Index')
 #        for child in node.child:
 #            stack.append(child)
 #    level+=1
-
-res=Tree.Result_predict(Train)
-res_test=Tree.Result_predict(Test)
-print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
-print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))

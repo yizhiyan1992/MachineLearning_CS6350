@@ -179,23 +179,29 @@ class DecisionTree:
         return
 
 '''main function'''
+#download dataset, and assign column values
 Train=pd.read_csv('/Users/zhiyan1992/Desktop/bank/train.csv',header=None)
 Test=pd.read_csv('/Users/zhiyan1992/Desktop/bank/test.csv',header=None)
 Train.columns=Test.columns=['age','job','marital','education','default','balance','housing'\
     ,'loan','contact','day','month','duration','campaign','pdays','previous','poutcome','label']
 Numeric={'age':True,'job':False,'marital':False,'education':False,'default':False,'balance':True,'housing':False, \
          'loan':False,'contact':False,'day':True,'month':False,'duration':True,'campaign':True,'pdays':True,'previous':True,'poutcome':False}
-
-
 print('total training size: ',Train.shape)
 print('label distribution from training set: ',Counter(Train['label']))
+
+# build the Decision Tree class
 Tree=DecisionTree(Train,Test)
+# processing numeric features and missing data
 Tree.Numeric_processing(Train,Test,Numeric)
-#Tree.MissingData_processing(Train,Test)
-'''
-gain_type=['Entropy','Gini_Index','Majority_Error']
-'''
+Tree.MissingData_processing(Train,Test)
+#train the model
+'''gain_type=['Entropy','Gini_Index','Majority_Error']'''
 Tree.Train_model(gain_type='Gini_Index')
+# predict results
+res=Tree.Result_predict(Train)
+res_test=Tree.Result_predict(Test)
+print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
+print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))
 
 # print tree BFS
 #from collections import deque
@@ -209,8 +215,3 @@ Tree.Train_model(gain_type='Gini_Index')
 #        for child in node.child:
 #            stack.append(child)
 #    level+=1
-
-res=Tree.Result_predict(Train)
-res_test=Tree.Result_predict(Test)
-print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
-print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))

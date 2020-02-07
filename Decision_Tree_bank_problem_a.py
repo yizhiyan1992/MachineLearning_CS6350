@@ -44,8 +44,6 @@ class DecisionTree:
                 Training_set[col_name][Training_set[col_name].astype(float) > self.Median[col_name]]=1
                 Testing_set[col_name][Testing_set[col_name].astype(float) <= self.Median[col_name]] = 0
                 Testing_set[col_name][Testing_set[col_name].astype(float) > self.Median[col_name]] = 1
-        #print(Training_set)
-        #print(Testing_set)
 
     def Train_model(self,gain_type):
         self.recursion(self.train_matrix,self.root,0,gain_type)
@@ -178,12 +176,19 @@ Numeric={'age':True,'job':False,'marital':False,'education':False,'default':Fals
 
 print('total training size: ',Train.shape)
 print('label distribution from training set: ',Counter(Train['label']))
+
+#build Decision tree class
 Tree=DecisionTree(Train,Test)
+#process numeric features
 Tree.Numeric_processing(Train,Test,Numeric)
-'''
-gain_type=['Entropy','Gini_Index','Majority_Error']
-'''
+# train the model
+'''gain_type=['Entropy','Gini_Index','Majority_Error']'''
 Tree.Train_model(gain_type='Gini_Index')
+#predict result
+res=Tree.Result_predict(Train)
+res_test=Tree.Result_predict(Test)
+print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
+print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))
 
 # print tree BFS
 #from collections import deque
@@ -197,8 +202,3 @@ Tree.Train_model(gain_type='Gini_Index')
 #        for child in node.child:
 #            stack.append(child)
 #    level+=1
-
-res=Tree.Result_predict(Train)
-res_test=Tree.Result_predict(Test)
-print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
-print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))

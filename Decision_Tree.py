@@ -1,3 +1,9 @@
+'''
+tree depth---> self.max_depth
+gain type---> DecisionTree.Train_model(gain_type)
+gain_type=['Entropy','Gini_Index','Majority_Error']
+
+'''
 import pandas as pd
 import numpy as np
 import math
@@ -16,7 +22,7 @@ class DecisionTree:
     def __init__(self,train_matrix,test):
         self.root=None
         # adjust this parameter to set the depth of the tree (depth is 0-indexed)
-        self.max_depth=5
+        self.max_depth=6
         self.train_matrix=train_matrix
         self.test=test
         self.train_sample_size=self.train_matrix.shape[0]
@@ -29,9 +35,7 @@ class DecisionTree:
     def Result_predict(self,samples):
         res=[]
         for index in range(samples.shape[0]):
-
             sample=samples.loc[index,:]
-            print(sample)
             res.append(self.Result_predict_each_sample(sample))
         return res
     def Result_predict_each_sample(self,sample):
@@ -145,9 +149,9 @@ class DecisionTree:
         return
 
 '''main function'''
-Train=pd.read_csv(r'C:/Users/Zhiyan/Desktop/MLassignments/New folder/car/train.csv',header=None)
+Train=pd.read_csv('/Users/zhiyan1992/Desktop/car/train.csv',header=None)
 Train.columns=['buying','maint','doors','persons','lug_boot','safety','label']
-Test=pd.read_csv(r'C:/Users/Zhiyan/Desktop/MLassignments/New folder/car/test.csv',header=None)
+Test=pd.read_csv('/Users/zhiyan1992/Desktop/car/test.csv',header=None)
 Test.columns=['buying','maint','doors','persons','lug_boot','safety','label']
 #Train=pd.DataFrame([['s','s','o','r','r','r','o','s','s','r','s','o','o','r'],['H','H','H','M','C','C','C','M','C','M','M','M','H','M'],['H','H','H','H','N','N','N','H','N','N','N','H','N','H'],['W','S','W','W','W','S','S','W','W','W','S','S','W','S'],[0,0,1,1,1,0,1,0,1,1,1,1,1,0]])
 #Train=Train.T
@@ -160,20 +164,20 @@ gain_type=['Entropy','Gini_Index','Majority_Error']
 '''
 Tree.Train_model(gain_type='Gini_Index')
 
-# print tree
-from collections import deque
-stack=deque([Tree.root])
-level=0
-while stack:
-    print(level)
-    for _ in range(len(stack)):
-        node=stack.popleft()
-        print(node.split_attribute,node.name,node.depth,node.prediction,node.leaf)
-        for child in node.child:
-            stack.append(child)
-    level+=1
+# print tree BFS
+#from collections import deque
+#stack=deque([Tree.root])
+#level=0
+#while stack:
+#    print(level)
+#    for _ in range(len(stack)):
+#        node=stack.popleft()
+#        print(node.split_attribute,node.name,node.depth,node.prediction,node.leaf)
+#        for child in node.child:
+#            stack.append(child)
+#    level+=1
 
 res=Tree.Result_predict(Train)
 res_test=Tree.Result_predict(Test)
-print(Tree.Prediction_accuracy(Train['label'].values,res))
-print(Tree.Prediction_accuracy(Test['label'].values,res_test))
+print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
+print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))

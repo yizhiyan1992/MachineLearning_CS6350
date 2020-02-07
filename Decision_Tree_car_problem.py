@@ -4,10 +4,13 @@ gain type---> DecisionTree.Train_model(gain_type)
 gain_type=['Entropy','Gini_Index','Majority_Error']
 
 '''
+import os
 import pandas as pd
 import numpy as np
 import math
 from collections import Counter
+print(os.getcwd())
+
 
 class Node:
     def __init__(self,name,attribute,depth):
@@ -57,7 +60,7 @@ class DecisionTree:
         for index in range(total):
             if true_label[index]==predict_label[index]:
                 count+=1
-        return count/total
+        return 1-count/total
 
     def InformationGain(self,col_feature,col_label,gain_type):
         val_root=self.Gain([],col_label,gain_type)
@@ -150,9 +153,9 @@ class DecisionTree:
 
 '''main function'''
 # Download dataset, assgin column names
-Train=pd.read_csv('/Users/zhiyan1992/Desktop/car/train.csv',header=None)
+Train=pd.read_csv('car/train.csv',header=None)
 Train.columns=['buying','maint','doors','persons','lug_boot','safety','label']
-Test=pd.read_csv('/Users/zhiyan1992/Desktop/car/test.csv',header=None)
+Test=pd.read_csv('car/test.csv',header=None)
 Test.columns=['buying','maint','doors','persons','lug_boot','safety','label']
 print('total training size: ',Train.shape)
 print('label distribution from training set: ',Counter(Train['label']))
@@ -165,8 +168,8 @@ Tree.Train_model(gain_type='Gini_Index')
 #print ptediction result
 res=Tree.Result_predict(Train)
 res_test=Tree.Result_predict(Test)
-print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
-print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))
+print('Prediction error on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
+print('Prediction error on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))
 
 # print tree BFS
 #from collections import deque

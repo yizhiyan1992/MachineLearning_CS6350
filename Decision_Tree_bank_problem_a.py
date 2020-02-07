@@ -8,10 +8,13 @@ To process the numeric variables: ---> DecisionTree.Numeric_Processing()
         2) If the feature value is less than or equal to the median value, assign 0 for this sample; otherwise, assign 1.
         3) Use this same median value to turn testing data into binary features as well.
 '''
+import os
 import pandas as pd
 import numpy as np
 import math
 from collections import Counter
+print(os.getcwd())
+
 
 class Node:
     def __init__(self,name,attribute,depth):
@@ -74,7 +77,7 @@ class DecisionTree:
         for index in range(total):
             if true_label[index]==predict_label[index]:
                 count+=1
-        return count/total
+        return 1-count/total
 
     def InformationGain(self,col_feature,col_label,gain_type):
         val_root=self.Gain([],col_label,gain_type)
@@ -166,8 +169,8 @@ class DecisionTree:
         return
 
 '''main function'''
-Train=pd.read_csv('/Users/zhiyan1992/Desktop/bank/train.csv',header=None)
-Test=pd.read_csv('/Users/zhiyan1992/Desktop/bank/test.csv',header=None)
+Train=pd.read_csv('bank/train.csv',header=None)
+Test=pd.read_csv('bank/test.csv',header=None)
 Train.columns=Test.columns=['age','job','marital','education','default','balance','housing'\
     ,'loan','contact','day','month','duration','campaign','pdays','previous','poutcome','label']
 Numeric={'age':True,'job':False,'marital':False,'education':False,'default':False,'balance':True,'housing':False, \
@@ -187,8 +190,8 @@ Tree.Train_model(gain_type='Gini_Index')
 #predict result
 res=Tree.Result_predict(Train)
 res_test=Tree.Result_predict(Test)
-print('Prediction accuracy on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
-print('Prediction accuracy on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))
+print('Prediction error on training set: ',Tree.Prediction_accuracy(Train['label'].values,res))
+print('Prediction error on testing set: ',Tree.Prediction_accuracy(Test['label'].values,res_test))
 
 # print tree BFS
 #from collections import deque

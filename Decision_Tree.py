@@ -153,9 +153,6 @@ Train=pd.read_csv('/Users/zhiyan1992/Desktop/car/train.csv',header=None)
 Train.columns=['buying','maint','doors','persons','lug_boot','safety','label']
 Test=pd.read_csv('/Users/zhiyan1992/Desktop/car/test.csv',header=None)
 Test.columns=['buying','maint','doors','persons','lug_boot','safety','label']
-#Train=pd.DataFrame([['s','s','o','r','r','r','o','s','s','r','s','o','o','r'],['H','H','H','M','C','C','C','M','C','M','M','M','H','M'],['H','H','H','H','N','N','N','H','N','N','N','H','N','H'],['W','S','W','W','W','S','S','W','W','W','S','S','W','S'],[0,0,1,1,1,0,1,0,1,1,1,1,1,0]])
-#Train=Train.T
-#Train.columns=['O','T','H','W','label']
 print('total training size: ',Train.shape)
 print('label distribution from training set: ',Counter(Train['label']))
 Tree=DecisionTree(Train,Test)

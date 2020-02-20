@@ -7,4 +7,8 @@ HW1-Feb 8
 3.Decision Tree-Bank-b (missing data processing)
 set Gain: DecisionTree.Train_Model(gain_type=)
 set depth: DecisionTree.max_depth=
+
+HW2-Feb 25
+3.
+4. linear regression problem, supporting two approaches for gradient descent batch and stochastic
 -------------------------------------------------------------

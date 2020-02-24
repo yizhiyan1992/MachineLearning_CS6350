@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 import math
 from collections import Counter
+from Decision_tree_adaboost import DecisionTree
 
-os.chdir(r'/Users/Zhiyan1992/Desktop/')
+#os.chdir(r'C:/Users/Zhiyan/Desktop/')
 class AdaBoost():
     def __init__(self,tree_no):
         self.tree_no=tree_no
@@ -12,19 +13,26 @@ class AdaBoost():
         self.medians=[]
         self.coefs=[]
 
-    def train_model(self,train):
-        #initializa weight
-        weight=[1/train.shape[0] for _ in range(train.shape[0])]
+    def train_model(self,train,test,Numeric):
+        #initializa weight, and add weight column to the sample matrix
+        weight=pd.DataFrame(data=np.array([1/train.shape[0] for _ in range(train.shape[0])]),columns=['weight'])
+        train=pd.concat([train,weight],axis=1)
         for index in range(self.tree_no):
             # train the Decision tree model with weighted samples
-            tree=DT
+            tree=DecisionTree(train,test)
             self.trees.append(tree)
-            DT.train
-            predict=DT.predict
-            em=self.cal_em(train,predict,weight)
+            median=tree.Numeric_processing(train,Numeric)
+            self.medians.append(median)
+            tree.Train_model(gain_type='Gini_Index')
+            predict=tree.Result_predict(train)
+            print(predict)
+            em=self.cal_em(train.values[:,-2],predict,train.values[:,-1])
+            print(em)
             coef=self.cal_coefficient(em)
             self.coefs.append(coef)
-            weight=self.update_weight(train,predict,weight,em)
+            weight=self.update_weight(train.values[:,-2],predict,train.values[:,-1],em)
+            print(weight)
+
 
     def predict(self,test):
         res=[]
@@ -81,5 +89,5 @@ Train['label'][Train['label']=='no']=-1
 Test['label'][Test['label']=='yes']=1
 Test['label'][Test['label']=='no']=-1
 
-#GBDT=AdaBoost(tree_no=1)
-
+GBDT=AdaBoost(tree_no=1)
+GBDT.train_model(Train,Test,Numeric)

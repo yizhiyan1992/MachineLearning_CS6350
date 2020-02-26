@@ -8,7 +8,7 @@ class Node:
     def __init__(self,attribute,map):
         self.attribute=attribute
         self.map=map
-os.chdir('/Users/Zhiyan1992/Desktop/')
+#os.chdir('/Users/Zhiyan1992/Desktop/')
 class AdaBoost():
     def __init__(self,tree_no,train_size,test_size):
         self.tree_no=tree_no
@@ -137,37 +137,40 @@ class AdaBoost():
             for index in range(test.shape[0]):
                 #temp=tree.map[test[tree.attribute].values[index]]
                 res[index]=res[index]+self.coefs[i]*tree.map[test[tree.attribute].values[index]]
-
         for index in range(test.shape[0]):
             if res[index]>0:
                 res[index]=1
             else:
                 res[index]=-1
         count = 0
-        for index in range(len(self.res[0])):
+        print(len(self.res[0]))
+        for index in range(test.shape[0]):
             if res[index]==test['label'].values[index]:
                 count += 1
-        return 1 - count / len(self.res[0])
+        return 1 - count /test.shape[0]
 
     def plot(self):
-        #plt.figure(1)
-        #plt.subplot(211)
-        #plt.plot(range(len(self.accu)),self.accu,label='Training Set')
-        #plt.title('Final Error on all trees')
-        #plt.xlabel('Iteration steps')
-        #plt.ylabel('Prediction Error')
-        #plt.plot(range(len(self.test_error)), self.test_error,label='Testing Set')
-        #plt.legend()
-        #plt.subplot(212)
+        plt.figure(1)
+        plt.subplot(211)
+        plt.plot(range(len(self.accu)),self.accu,label='Training Set')
+        plt.title('Final Error on all trees')
+        plt.xlabel('Iteration steps')
+        plt.ylabel('Prediction Error')
+        plt.plot(range(len(self.test_error)), self.test_error,label='Testing Set')
+        plt.legend()
+        plt.subplot(212)
         plt.plot(range(len(self.each_accu)),self.each_accu,label='Training Set')
         plt.title('Error on each decision stump')
         plt.xlabel('Iteration steps')
         plt.ylabel('Prediction Error')
-        #plt.plot(range(len(self.each_test_error)), self.each_test_error,label='Testing Set')
+        plt.plot(range(len(self.each_test_error)), self.each_test_error,label='Testing Set')
         plt.legend()
         plt.tight_layout()
-        plt.savefig(r'/Users/Zhiyan1992/Desktop/res1.png')
+        #plt.savefig(r'/Users/Zhiyan1992/Desktop/res1.png')
         plt.show()
+        File=np.array([np.array(self.each_accu),np.array(self.each_test_error)])
+        File=pd.DataFrame(File)
+        File.to_csv(r'adaboot_res.csv')
 
 '''Main function'''
 def main():

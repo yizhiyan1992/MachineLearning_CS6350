@@ -3,7 +3,7 @@ import numpy as np
 from collections import Counter
 import matplotlib.pyplot as plt
 import math
-from scratch_65 import DecisionTree
+from Decision_tree_insert_feature_select import DecisionTree
 import os
 import copy
 #os.chdir('/Users/Zhiyan1992/Desktop/')

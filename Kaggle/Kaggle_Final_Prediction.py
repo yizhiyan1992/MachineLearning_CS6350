@@ -5,14 +5,12 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 from collections import Counter
 import os
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import Perceptron
 from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
-from sklearn.svm import libsvm
 import xgboost
 
 os.chdir('/Users/Zhiyan1992/Desktop/')
@@ -111,14 +109,25 @@ class choose_model():
         return
 
 
-    #res=clf.predict_proba(test_x)
-    #res=pd.DataFrame(res)
-    #res.to_csv('results_April.csv',header=False)
-    #score=cross_val_score(clf,train_x,train_y,cv=5)
-    #print('training set:',clf.score(train_x,train_y),'validation set (5-fold)',np.mean(score),sep='\n')
+def calibration(x,y):
+    model=xgboost.XGBClassifier(seed=42)
+    hyperparams={'n_estimators':[100,500,750,1000],'learning_rate':[0.01,0.1,0.5,1]}
+    clf=GridSearchCV(model,hyperparams,cv=4,scoring='roc_auc')
+    clf.fit(x,y)
+    print(clf.cv_results_['mean_test_score'])
+    print(clf.best_params_)
+    return
 
-    #score = cross_val_score(clf, train_x, train_y, cv=5)
-    #print('training set:',clf.score(train_x,train_y),'validation set (5-fold)',np.mean(score),sep='\n')
+def final_prediction(x_train,y_train,final):
+    hyperparams = {'seed':42,'n_estimators':750, 'learning_rate': 0.1}
+    clf = xgboost.XGBClassifier(**hyperparams)
+    clf.fit(x_train,y_train)
+    res=clf.predict_proba(final)[:,1]
+    res=pd.DataFrame(res)
+    res.to_csv('Final_prediction.csv')
+    return
+
+
 
 def main():
     Train=pd.read_csv('income-predict/train_final.csv')
@@ -126,24 +135,22 @@ def main():
     Train=Train.replace('?',np.NaN)
     Train=Train.dropna()
 
-    train_y=Train['income>50K']
-    train_x=Train.drop(columns=['income>50K'])
+    Train_y=Train['income>50K']
+    Train_x=Train.drop(columns=['income>50K'])
     #train_x,Test=Preprocessing(train_x,Test)
 
-    train_x,Test=Feature_Merge(train_x,Final)
-    #print(train_x['marital.status'])
-
-    Concat=pd.concat([train_x,Final])
+    Train_x,Test=Feature_Merge(Train_x,Final)
+    Concat=pd.concat([Train_x,Final])
     Concat=Concat.drop(columns=['native.country'])
-
     Concat = pd.get_dummies(Concat, columns=['workclass', 'education', 'marital.status', 'occupation',
                                              'relationship','race', 'sex'])
 
-    train_x=Concat.values[:train_y.shape[0],:]
-    Final=Concat.values[train_y.shape[0]:,:]
-    train_x,train_y,test_x,test_y=train_test_split(train_x,train_y)
+    Train_x=Concat.values[:Train_y.shape[0],:]
+    Final=Concat.values[Train_y.shape[0]:,:]
+    train_x,train_y,test_x,test_y=train_test_split(Train_x,Train_y)
 
     #select model
+    '''
     model_test=choose_model()
     model_test.Perceptron(train_x, train_y, test_x, test_y)
     model_test.ANN(train_x,train_y,test_x,test_y)
@@ -151,7 +158,16 @@ def main():
     model_test.XGB(train_x, train_y, test_x, test_y)
     model_test.NaiveBayes(train_x, train_y, test_x, test_y)
     plt.show()
-    #RandomForest(train_x,train_y,test_x,test_y,Final)
-    #XGB(train_x,train_y,test_x)
+    #t the best model is xgboost
+
+
+    #parameter tuning
+    calibration(Train_x, Train_y)
+    '''
+
+    #Final prediction
+    final_prediction(Train_x,Train_y,Final)
+
+
 if __name__=='__main__':
     main()
